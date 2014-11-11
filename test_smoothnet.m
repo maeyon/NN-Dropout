@@ -27,7 +27,7 @@ Yte = class_inds(Yte);
 %
 % SmoothNet(A1, A2, A3):
 %   A1: array describing the desired dimension of each network layer
-%   A2: ActFunc instance to use in hidden layers (6=ReHu, a smoothed ReLU)
+%   A2: ActFunc instance to use in hidden layers (Default=7, 2=Sigmoid, 6=ReHu, a smoothed ReLU)
 %   A3: ActFunc instance to use in output layer (1=linear, don't change it)
 %
 % NET.out_loss: Set the loss function to optimize at the output layer of the
@@ -66,8 +66,8 @@ NET.init_weights(0.15);
 % NET.drop_input: Drop rate parameter for nodes in input layer.
 %
 NET.weight_noise = 0.00;
-NET.drop_hidden = 0.00;
-NET.drop_input = 0.00;
+NET.drop_hidden = 0.5;%0.00;
+NET.drop_input = 0.5;%0.00;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set per-layer regularization parameters %
@@ -78,7 +78,7 @@ NET.drop_input = 0.00;
 %
 % layer_lams(i).lam_l1: L1 penalty applied to activations at layer i
 % layer_lams(i).lam_l2: L2 penalty applied to activations at layer i
-% layer_lams(i).wt_bnd: Bound on L2 norm of incoming weight vectors for each
+% layer_lams(i).l2_bnd: Bound on L2 norm of incoming weight vectors for each
 %                       node in layer i.
 % layer_lams(i).ord_lams: Vector of weights for higher-order curvature
 %                         regularization, where ord_lams(i) is the weight for
@@ -89,7 +89,7 @@ NET.drop_input = 0.00;
 %                         number of feedforward and backprop computations.
 %
 % To use DropOut as in the original paper, set all regularization parameters
-% here to 0, except for NET.layer_lams(i).wt_bnd, which should be selected by
+% here to 0, except for NET.layer_lams(i).l2_bnd, which should be selected by
 % some sort of cross-validation.
 %
 for i=1:numel(layer_dims),
@@ -97,7 +97,7 @@ for i=1:numel(layer_dims),
     NET.layer_lams(i).lam_l2 = 0;
     NET.layer_lams(i).l2_bnd = 10.0;
 end
-NET.layer_lams(numel(layer_dims)).ord_lams = [0.1 0.1];
+NET.layer_lams(numel(layer_dims)).ord_lams = [0 0];%[0.1 0.1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Setup param struct for training the net %
