@@ -351,14 +351,15 @@ classdef SmoothNet < handle
         
          function [L_out L_curv] = check_dropout_losses(self, X, Y, nn_len)
             % Check the various losses being optimized for this SmoothNet
+            % using the dropouted weights. 
             l_weights = self.layer_weights;
             % Sample points for general loss
             [Xg Yg] = SmoothNet.sample_points(X, Y, 2000);
             % Compute dropouted weights
             l_dropped_weights = l_weights;
-            l_dropped_weights{1} = (1-self.drop_input)*l_weights{1}(1:end-1,:);
+            l_dropped_weights{1}(1:end-1,:) = (1-self.drop_input)*l_weights{1}(1:end-1,:);
             for i=2:self.depth-1,
-                l_dropped_weights{i} = (1-self.drop_hidden)*l_weights{i}(1:end-1,:);
+                l_dropped_weights{i}(1:end-1,:) = (1-self.drop_hidden)*l_weights{i}(1:end-1,:);
             end
             % Compute activations for sampled points 
             acts_g = self.feedforward(Xg, l_dropped_weights, 0);
@@ -371,7 +372,7 @@ classdef SmoothNet < handle
                 % Compute activations for points in each FD chain
                 acts_fd = cell(1,length(X_fd));
                 for i=1:length(X_fd),
-                    acts_fd{i} = self.feedforward(X_fd{i}, l_weights, 0);
+                    acts_fd{i} = self.feedforward(X_fd{i}, l_dropped_weights, 0);
                 end
                 % Compute multi-order curvature gradients for the FD chains
                 [dN_fd L_fd] = self.bprop_fd(acts_fd, fd_lens);
