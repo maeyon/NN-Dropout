@@ -36,8 +36,7 @@ classdef SmoothNet < handle
     end
     
     methods 
-        % check_dropout_losses @ line 351
-        % train @ line 381       
+        % train @ line 351
         function [self] = SmoothNet(layer_dims, act_func, out_func)
             % Constructor for SmoothNet class
             if ~exist('out_func','var')
@@ -355,11 +354,7 @@ classdef SmoothNet < handle
             % Sample points for general loss
             [Xg Yg] = SmoothNet.sample_points(X, Y, 2000);
             % Compute dropouted weights
-            l_dropped_weights = l_weights;
-            l_dropped_weights{1} = (1-self.drop_input)*l_weights{1}(1:end-1,:);
-            for i=2:self.depth-1,
-                l_dropped_weights{i} = (1-self.drop_hidden)*l_weights{i}(1:end-1,:);
-            end
+            l_dropped_weights = l_weights.*self.;
             % Compute activations for sampled points 
             acts_g = self.feedforward(Xg, l_dropped_weights, 0);
             % Compute general loss for sampled points
